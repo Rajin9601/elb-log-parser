@@ -72,6 +72,8 @@ pub struct Log<'a> {
     pub classification: &'a [u8],
     #[serde(serialize_with = "bytes_ser")]
     pub classification_reason: &'a [u8],
+    #[serde(serialize_with = "bytes_ser")]
+    pub conn_trace_id: &'a [u8],
 }
 
 pub struct LogParser {
@@ -174,6 +176,8 @@ impl LBLogParser for LogParser {
         "(Acceptable|Ambiguous|Severe|-)"                       # classification
         \x20
         "([a-zA-Z]+|-)"                                         # classification_reason, https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html#classification-reasons
+        \x20
+        ([a-zA-Z0-9_]+)                                         # conn_trace_id
         \x0A?
         $
     "#;
@@ -228,6 +232,7 @@ impl LBLogParser for LogParser {
             target_status_code_list: s(30),
             classification: s(31),
             classification_reason: s(32),
+            conn_trace_id: s(33),
         })
     }
 }
